@@ -78,6 +78,47 @@ namespace BlogChain_API.Controllers
             return Ok("Post successfully created");
         }
 
+        [HttpPatch("AddLike"), Authorize]
+        public async Task<IActionResult> AddLike(string postId)
+        {
+            PostModel post = await _postService.GetSingle(postId);
+            UserModel liker = await _usersService.GetById();
+
+            bool alreadyLiked = post.LikedBy.Contains(liker.Id.ToString());
+
+            if (alreadyLiked)
+            {
+                return BadRequest("You Already liked this post");
+            }
+
+            post.LikedBy.Add(liker.Id.ToString());
+            await _postService.UpdateAsync(postId, post);
+            return Ok("post liked");
+        }
+
+        [HttpPatch("RemoveLike"), Authorize]
+        public async Task<IActionResult> RemoveLike(string postId)
+        {
+            PostModel? post = await _postService.GetSingle(postId);
+
+            if (post == null)
+            {
+                return NotFound($"The post with id {postId} doesn't exist");
+            }
+            UserModel liker = await _usersService.GetById();
+
+            bool alreadyLiked = post.LikedBy.Contains(liker.Id.ToString());
+
+            if (alreadyLiked)
+            {
+                post.LikedBy.Remove(liker.Id.ToString());
+                await _postService.UpdateAsync(postId, post);
+                return Ok("Removed Like");
+            }
+           
+            return BadRequest("You didn't like the post");
+        }
+
         [HttpPatch("AddComment"), Authorize]
         public async Task<IActionResult> AddComment(string postId, string text)
         {
@@ -92,6 +133,41 @@ namespace BlogChain_API.Controllers
 
             await _postService.AddComment(post, comment);
             return Ok("Comment added successfully");
+        }
+
+        [HttpPatch("RemoveComment"), Authorize]
+        public async Task<IActionResult> RemoveComment(string commentId, string postId)
+        {
+            try
+            {
+                UserModel user = await _usersService.GetById();
+                PostModel? post = await _postService.GetSingle(postId);
+
+                if (post == null)
+                {
+                    return NotFound("No post with this Id has been found");
+                }
+
+                CommentModel? comment = post.Comments.FirstOrDefault(x => x.Id.ToString() == commentId);
+
+
+                if (comment == null)
+                {
+                    return NotFound("No comment with this Id has been found");
+                }
+
+                if (comment.AuthorId == user.Id || post.AuthorId == user.Id)
+                {
+                    post.Comments.Remove(comment);
+                    await _postService.UpdateAsync(postId, post);
+                    return Ok("Removed Comment");
+                }
+
+                return Unauthorized("You are not authorized to remove this comment");
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("DeletePost"), Authorize]

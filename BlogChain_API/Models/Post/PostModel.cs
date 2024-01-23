@@ -13,7 +13,7 @@ namespace BlogChain_API.Models.Post
 
         public byte[] Image { get; set; }
 
-        public HashSet<string> LikedBy { get; set; }
+        public HashSet<string> LikedBy { get; set; } = new HashSet<string>();
 
         public DateTime Published { get; set; }
 
