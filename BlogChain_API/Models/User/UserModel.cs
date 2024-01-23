@@ -20,5 +20,7 @@ namespace BlogChain_API.Models.User
         public string ProfileDescription { get; set; }
 
         public List<PostModel> Posts { get; set; } = new List<PostModel>();
+
+        public HashSet<PostModel> SavedPosts { get; set; } = new HashSet<PostModel> { };
     }
 }

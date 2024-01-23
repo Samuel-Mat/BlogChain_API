@@ -121,6 +121,7 @@ namespace BlogChain_API.Controllers
             return Ok("Description changed successfully");
         }
 
+
         [HttpDelete("DeleteAll")]
         public async Task<IActionResult> DeleteAll()
         {

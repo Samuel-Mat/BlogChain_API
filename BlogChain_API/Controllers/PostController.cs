@@ -4,6 +4,7 @@ using BlogChain_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using System;
 using System.Security.Claims;
 
 namespace BlogChain_API.Controllers
@@ -46,10 +47,13 @@ namespace BlogChain_API.Controllers
             newPost.Text = postData.Text;
             newPost.Published = DateTime.UtcNow;
             newPost.AuthorId = author.Id.ToString();
+            newPost.Id = BsonObjectId.GenerateNewId().ToString();
+
+            await _postService.CreateAsync(newPost);
 
             author.Posts.Add(newPost);
             await _usersService.UpdateAsync(author.Id.ToString(), author);
-            await _postService.CreateAsync(newPost);
+            
 
             return Ok("Post successfully created");
         }
@@ -170,15 +174,76 @@ namespace BlogChain_API.Controllers
             }
         }
 
+        [HttpPatch("SavePost"), Authorize]
+
+        public async Task<IActionResult> SavePost(string postId)
+        {
+            UserModel user = await _usersService.GetById();
+
+            PostModel post = await _postService.GetSingle(postId); 
+            
+            if (post == null) 
+            {
+                return NotFound("No post with this Id has been found");
+            }
+
+            PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x  => x.Id == postId );
+            
+
+            if (alreadySaved != null)
+            {
+                return BadRequest("Already saved this post");
+            }
+
+            user.SavedPosts.Add(post);
+            await _usersService.UpdateAsync(user.Id.ToString(), user);
+            return Ok("Saved post");
+        }
+
+        [HttpPatch("UnsavePost"), Authorize]
+
+        public async Task<IActionResult> UnsavePost(string postId)
+        {
+            UserModel user = await _usersService.GetById();
+
+            PostModel post = await _postService.GetSingle(postId);
+
+            if (post == null)
+            {
+                return NotFound("No post with this Id has been found");
+            }
+
+            PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x => x.Id == postId);
+
+            if (alreadySaved != null)
+            {
+                PostModel deletepost = user.SavedPosts.FirstOrDefault(x => x.Id == post.Id);
+                user.SavedPosts.Remove(deletepost);
+                await _usersService.UpdateAsync(user.Id.ToString(), user);
+                return Ok("Unsaved post");
+            }
+
+            return BadRequest("You didn't save this post");
+        }
+
         [HttpDelete("DeletePost"), Authorize]
         public async Task<IActionResult> DeletePost(string id)
         {
             try
             {
+                UserModel user = await _usersService.GetById();
                 PostModel post = await _postService.GetSingle(id);
-                if (post.AuthorId == _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString())
+                if (post.AuthorId == user.Id.ToString())
                 {
+                    RemoveFromAllSaves(post);
+
+                    PostModel deletePost = user.Posts.Find(x => x.Id == post.Id);
+                    user.Posts.Remove(deletePost);
+                    await _usersService.UpdateAsync(user.Id, user);
+
                     await _postService.RemoveAsync(id);
+
+
                     return Ok($"Post with id {id} successfully deleted");
                 }
                 else
@@ -197,6 +262,23 @@ namespace BlogChain_API.Controllers
         {
             await _postService.DeleteAll();
             return Ok();
+        }
+
+        private async void RemoveFromAllSaves(PostModel post)
+        {
+            List<UserModel> users = await _usersService.GetAsync();
+
+            foreach (UserModel user in users)
+            {
+                PostModel deletePost = user.SavedPosts.FirstOrDefault(x => x.Id == post.Id);
+                if (deletePost != null)
+                {
+                    user.SavedPosts.Remove(deletePost);
+                    await _usersService.UpdateAsync(user.Id.ToString(), user);
+                }
+
+               
+            }
         }
     }
 }
