@@ -39,15 +39,24 @@ namespace BlogChain_API.Controllers
             return Ok(user);
         }
           
+        [HttpGet("GetProfile")]
 
-        [HttpGet("GetProfile"), Authorize]
-
-        public async Task<ActionResult> GetProfile()
+        public async Task<ActionResult> GetProfile(string id)
         {
 
-            UserModel user = await _usersService.GetById();
-            return File(user.ProfileImage, "image/png");
+            UserModel user = await _usersService.GetSingle(id);
+
+            if(user == null)
+            {
+                return NotFound("No user found (╯°□°）╯︵ ┻━┻");
+            }
+            GetSingleUserDto userDto = new GetSingleUserDto();
+            userDto.Username = user.Username;
+            userDto.ProfileImage = user.ProfileImage;
+            return Ok(userDto);
         }
+
+
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserModelDto newUser)

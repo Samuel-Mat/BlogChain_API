@@ -34,7 +34,13 @@ namespace BlogChain_API.Services
             string id = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString();
             return await _usersCollection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
         }
-    
+
+        public async Task<UserModel?> GetSingle(string id)
+        {
+            return await _usersCollection.Find(x => x.Id.ToString() == id).FirstOrDefaultAsync();
+        }
+
+
 
         public async Task<UserModel?> GetWithUsername(string username) =>
          await _usersCollection.Find(x => x.Username == username).FirstOrDefaultAsync();
