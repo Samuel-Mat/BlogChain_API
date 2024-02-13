@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System;
 using System.Security.Claims;
+using System.Web;
 
 namespace BlogChain_API.Controllers
 {
@@ -55,7 +56,7 @@ namespace BlogChain_API.Controllers
 
                 PostModel newPost = new PostModel();
 
-                newPost.Text = postData.Text;
+                newPost.Text = HttpUtility.HtmlEncode(postData.Text);
                 newPost.Published = DateTime.UtcNow;
                 newPost.AuthorId = author.Id.ToString();
                 newPost.Id = BsonObjectId.GenerateNewId().ToString();
@@ -165,7 +166,7 @@ namespace BlogChain_API.Controllers
             PostModel post = await _postService.GetSingle(postId);
 
             CommentModel comment = new CommentModel();
-            comment.Text = text;
+            comment.Text = HttpUtility.HtmlEncode(text);
             comment.AuthorId = author.Id.ToString();
             comment.Published = DateTime.UtcNow;
             comment.Id = ObjectId.GenerateNewId().ToString();

@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using BlogChain_API.Models.User;
+using System.Web;
 
 namespace BlogChain_API.Controllers
 {
@@ -54,11 +55,11 @@ namespace BlogChain_API.Controllers
             try
             {
                 UserModel user = new UserModel();
-                user.Username = newUser.Username;
+                user.Username = HttpUtility.HtmlEncode(newUser.Username);
                 user.Password = _passwordService.HashPassword(newUser.Password);
-                user.Email = newUser.Email;
+                user.Email = HttpUtility.HtmlEncode(newUser.Email);
 
-                if (await _usersService.GetWithUsername(user.Username) != null)
+                if (await _usersService.GetWithUsername(HttpUtility.HtmlEncode(user.Username)) != null)
                 {
                     return BadRequest("A User with this username already exists (╯°□°）╯︵ ┻━┻");
                 }
@@ -81,7 +82,7 @@ namespace BlogChain_API.Controllers
                 return BadRequest("You forgot the username or password. (╯°□°）╯︵ ┻━┻");
             }
 
-            UserModel? user = await _usersService.GetWithUsername(userData.Username);
+            UserModel? user = await _usersService.GetWithUsername(HttpUtility.HtmlEncode(userData.Username));
 
             if (user == null)
             {
