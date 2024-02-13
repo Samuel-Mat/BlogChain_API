@@ -32,6 +32,7 @@ builder.Services.AddCors(options =>
         builder => builder.WithOrigins("*")
                           .AllowAnyHeader()
                           .AllowAnyMethod());
+
 });
 
 builder.Services.AddSwaggerGen(options =>
@@ -72,6 +73,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowSpecificOrigin");
 
 app.MapControllers();
 

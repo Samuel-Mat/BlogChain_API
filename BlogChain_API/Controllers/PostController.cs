@@ -43,43 +43,78 @@ namespace BlogChain_API.Controllers
         public async Task<IActionResult> CreateTextPost(CreatePostModelTextDto postData)
         {
             UserModel author = await _usersService.GetById();
-            PostModel newPost = new PostModel();
-            newPost.Text = postData.Text;
-            newPost.Published = DateTime.UtcNow;
-            newPost.AuthorId = author.Id.ToString();
-            newPost.Id = BsonObjectId.GenerateNewId().ToString();
 
-            await _postService.CreateAsync(newPost);
+            if(author == null)
+            {
+                return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
+            }
 
-            author.Posts.Add(newPost);
-            await _usersService.UpdateAsync(author.Id.ToString(), author);
-            
+            try
+            {
 
-            return Ok("Post successfully created");
+
+                PostModel newPost = new PostModel();
+
+                newPost.Text = postData.Text;
+                newPost.Published = DateTime.UtcNow;
+                newPost.AuthorId = author.Id.ToString();
+                newPost.Id = BsonObjectId.GenerateNewId().ToString();
+
+                await _postService.CreateAsync(newPost);
+
+                author.Posts.Add(newPost);
+                await _usersService.UpdateAsync(author.Id.ToString(), author);
+
+
+                return Ok("Post successfully created");
+
+            }catch(Exception ex)
+            {
+                return BadRequest($"Failed to create the post: {ex.Message} (╯°□°）╯︵ ┻━┻");
+            }
         }
 
         [HttpPost("CreateImagePost"), Authorize]
         public async Task<IActionResult> CreateImagePost(IFormFile postData)
         {
             UserModel author = await _usersService.GetById();
-            PostModel newPost = new PostModel();
 
-            using (MemoryStream ms = new MemoryStream())
+            if (author == null)
             {
-
-                postData.CopyTo(ms);
-                byte[] imageInBytes = ms.ToArray();
-                newPost.Image = imageInBytes;
+                return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
             }
 
-            newPost.Published = DateTime.UtcNow;
-            newPost.AuthorId = author.Id.ToString();
+            if(postData == null)
+            {
+                return BadRequest("No Image selected (╯°□°）╯︵ ┻━┻");
+            }
 
-            author.Posts.Add(newPost);
-            await _usersService.UpdateAsync(author.Id.ToString(), author);
-            await _postService.CreateAsync(newPost);
+            PostModel newPost = new PostModel();
 
-            return Ok("Post successfully created");
+            try
+            {
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+
+                    postData.CopyTo(ms);
+                    byte[] imageInBytes = ms.ToArray();
+                    newPost.Image = imageInBytes;
+                }
+
+                newPost.Published = DateTime.UtcNow;
+                newPost.AuthorId = author.Id.ToString();
+
+                author.Posts.Add(newPost);
+                await _usersService.UpdateAsync(author.Id.ToString(), author);
+                await _postService.CreateAsync(newPost);
+
+                return Ok("Post successfully created");
+
+            }catch (Exception ex)
+            {
+                return BadRequest($"Failed to create the post: {ex.Message} (╯°□°）╯︵ ┻━┻");
+            }
         }
 
         [HttpPatch("AddLike"), Authorize]
@@ -92,7 +127,7 @@ namespace BlogChain_API.Controllers
 
             if (alreadyLiked)
             {
-                return BadRequest("You Already liked this post");
+                return BadRequest("You Already liked this post (╯°□°）╯︵ ┻━┻");
             }
 
             post.LikedBy.Add(liker.Id.ToString());
@@ -107,7 +142,7 @@ namespace BlogChain_API.Controllers
 
             if (post == null)
             {
-                return NotFound($"The post with id {postId} doesn't exist");
+                return NotFound($"The post with id {postId} doesn't exist (╯°□°）╯︵ ┻━┻");
             }
             UserModel liker = await _usersService.GetById();
 
@@ -120,7 +155,7 @@ namespace BlogChain_API.Controllers
                 return Ok("Removed Like");
             }
            
-            return BadRequest("You didn't like the post");
+            return BadRequest("You didn't like the post (╯°□°）╯︵ ┻━┻");
         }
 
         [HttpPatch("AddComment"), Authorize]
@@ -149,7 +184,7 @@ namespace BlogChain_API.Controllers
 
                 if (post == null)
                 {
-                    return NotFound("No post with this Id has been found");
+                    return NotFound("No post with this Id has been found (╯°□°）╯︵ ┻━┻");
                 }
 
                 CommentModel? comment = post.Comments.FirstOrDefault(x => x.Id.ToString() == commentId);
@@ -157,7 +192,7 @@ namespace BlogChain_API.Controllers
 
                 if (comment == null)
                 {
-                    return NotFound("No comment with this Id has been found");
+                    return NotFound("No comment with this Id has been found (╯°□°）╯︵ ┻━┻");
                 }
 
                 if (comment.AuthorId == user.Id || post.AuthorId == user.Id)
@@ -167,7 +202,7 @@ namespace BlogChain_API.Controllers
                     return Ok("Removed Comment");
                 }
 
-                return Unauthorized("You are not authorized to remove this comment");
+                return Unauthorized("You are not authorized to remove this comment (╯°□°）╯︵ ┻━┻");
             }catch(Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -184,7 +219,7 @@ namespace BlogChain_API.Controllers
             
             if (post == null) 
             {
-                return NotFound("No post with this Id has been found");
+                return NotFound("No post with this Id has been found (╯°□°）╯︵ ┻━┻");
             }
 
             PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x  => x.Id == postId );
@@ -192,7 +227,7 @@ namespace BlogChain_API.Controllers
 
             if (alreadySaved != null)
             {
-                return BadRequest("Already saved this post");
+                return BadRequest("Already saved this post (╯°□°）╯︵ ┻━┻");
             }
 
             user.SavedPosts.Add(post);
@@ -210,7 +245,7 @@ namespace BlogChain_API.Controllers
 
             if (post == null)
             {
-                return NotFound("No post with this Id has been found");
+                return NotFound("No post with this Id has been found (╯°□°）╯︵ ┻━┻");
             }
 
             PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x => x.Id == postId);
@@ -223,7 +258,7 @@ namespace BlogChain_API.Controllers
                 return Ok("Unsaved post");
             }
 
-            return BadRequest("You didn't save this post");
+            return BadRequest("You didn't save this post (╯°□°）╯︵ ┻━┻");
         }
 
         [HttpDelete("DeletePost"), Authorize]
@@ -248,7 +283,7 @@ namespace BlogChain_API.Controllers
                 }
                 else
                 {
-                    return Unauthorized("You are not authorized to delete this post!");
+                    return Unauthorized("You are not authorized to delete this post! (╯°□°）╯︵ ┻━┻");
                 }
             }
             catch (Exception ex)

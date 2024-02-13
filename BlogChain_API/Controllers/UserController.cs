@@ -51,13 +51,26 @@ namespace BlogChain_API.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserModelDto newUser)
         {
-            UserModel user = new UserModel();
-            user.Username = newUser.Username;
-            user.Password = _passwordService.HashPassword(newUser.Password);
-            user.Email = newUser.Email;
-            await _usersService.CreateAsync(user);
+            try
+            {
+                UserModel user = new UserModel();
+                user.Username = newUser.Username;
+                user.Password = _passwordService.HashPassword(newUser.Password);
+                user.Email = newUser.Email;
 
-            return Ok(newUser);
+                if (await _usersService.GetWithUsername(user.Username) != null)
+                {
+                    return BadRequest("A User with this username already exists (╯°□°）╯︵ ┻━┻");
+                }
+
+
+                await _usersService.CreateAsync(user);
+
+                return Ok(newUser);
+            }catch (Exception ex)
+            {
+                return BadRequest($"Failed to register {ex.Message} (╯°□°）╯︵ ┻━┻");
+            }
         }
 
         [HttpPost("Login")]
@@ -65,14 +78,14 @@ namespace BlogChain_API.Controllers
         {
             if (userData == null)
             {
-                return BadRequest("You forgot the username or password.");
+                return BadRequest("You forgot the username or password. (╯°□°）╯︵ ┻━┻");
             }
 
             UserModel? user = await _usersService.GetWithUsername(userData.Username);
 
             if (user == null)
             {
-                return BadRequest("Username or Password is wrong");
+                return BadRequest("Username or Password is wrong (╯°□°）╯︵ ┻━┻");
             }
 
             bool success = _passwordService.VerifyPassword(user, userData.Password);
@@ -82,7 +95,7 @@ namespace BlogChain_API.Controllers
                 return Ok(token);
             }
 
-            return BadRequest("Username or Password is wrong");
+            return BadRequest("Username or Password is wrong (╯°□°）╯︵ ┻━┻");
         }
 
         [HttpPatch("ChangeProfilePic"), Authorize]
@@ -92,7 +105,7 @@ namespace BlogChain_API.Controllers
             var user = await _usersService.GetById();
             if (user == null)
             {
-                return NotFound();
+                return NotFound("(╯°□°）╯︵ ┻━┻");
             }
             using (MemoryStream ms = new MemoryStream())
             {
@@ -113,7 +126,7 @@ namespace BlogChain_API.Controllers
             var user = await _usersService.GetById();
             if (user == null)
             {
-                return NotFound();
+                return NotFound("(╯°□°）╯︵ ┻━┻");
             }
             
             user.ProfileDescription = description;
