@@ -13,5 +13,7 @@ namespace BlogChain_API.Models.Post
         public DateTime Published { get; set; }
 
         public string AuthorId { get; set; }
+
+        public string AuthorName { get; set; }
     }
 }

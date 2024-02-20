@@ -20,5 +20,7 @@ namespace BlogChain_API.Models.Post
         public List<CommentModel> Comments { get; set; } = new List<CommentModel>();   
 
         public string AuthorId { get; set; }
+
+        public string AuthorName { get; set; }
     }
 }

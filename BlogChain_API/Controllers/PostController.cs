@@ -45,7 +45,7 @@ namespace BlogChain_API.Controllers
         {
             UserModel author = await _usersService.GetById();
 
-            if(author == null)
+            if (author == null)
             {
                 return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
             }
@@ -60,6 +60,7 @@ namespace BlogChain_API.Controllers
                 newPost.Published = DateTime.UtcNow;
                 newPost.AuthorId = author.Id.ToString();
                 newPost.Id = BsonObjectId.GenerateNewId().ToString();
+                newPost.AuthorName = author.Username;
 
                 await _postService.CreateAsync(newPost);
 
@@ -69,7 +70,8 @@ namespace BlogChain_API.Controllers
 
                 return Ok("Post successfully created");
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest($"Failed to create the post: {ex.Message} (╯°□°）╯︵ ┻━┻");
             }
@@ -85,7 +87,7 @@ namespace BlogChain_API.Controllers
                 return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
             }
 
-            if(postData == null)
+            if (postData == null)
             {
                 return BadRequest("No Image selected (╯°□°）╯︵ ┻━┻");
             }
@@ -105,6 +107,7 @@ namespace BlogChain_API.Controllers
 
                 newPost.Published = DateTime.UtcNow;
                 newPost.AuthorId = author.Id.ToString();
+                newPost.AuthorName = author.Username;
 
                 author.Posts.Add(newPost);
                 await _usersService.UpdateAsync(author.Id.ToString(), author);
@@ -112,7 +115,8 @@ namespace BlogChain_API.Controllers
 
                 return Ok("Post successfully created");
 
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest($"Failed to create the post: {ex.Message} (╯°□°）╯︵ ┻━┻");
             }
@@ -155,7 +159,7 @@ namespace BlogChain_API.Controllers
                 await _postService.UpdateAsync(postId, post);
                 return Ok("Removed Like");
             }
-           
+
             return BadRequest("You didn't like the post (╯°□°）╯︵ ┻━┻");
         }
 
@@ -170,6 +174,7 @@ namespace BlogChain_API.Controllers
             comment.AuthorId = author.Id.ToString();
             comment.Published = DateTime.UtcNow;
             comment.Id = ObjectId.GenerateNewId().ToString();
+            comment.AuthorName = author.Username;
 
             await _postService.AddComment(post, comment);
             return Ok("Comment added successfully");
@@ -204,7 +209,8 @@ namespace BlogChain_API.Controllers
                 }
 
                 return Unauthorized("You are not authorized to remove this comment (╯°□°）╯︵ ┻━┻");
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -216,15 +222,15 @@ namespace BlogChain_API.Controllers
         {
             UserModel user = await _usersService.GetById();
 
-            PostModel post = await _postService.GetSingle(postId); 
-            
-            if (post == null) 
+            PostModel post = await _postService.GetSingle(postId);
+
+            if (post == null)
             {
                 return NotFound("No post with this Id has been found (╯°□°）╯︵ ┻━┻");
             }
 
-            PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x  => x.Id == postId );
-            
+            PostModel alreadySaved = user.SavedPosts.FirstOrDefault(x => x.Id == postId);
+
 
             if (alreadySaved != null)
             {
@@ -313,7 +319,7 @@ namespace BlogChain_API.Controllers
                     await _usersService.UpdateAsync(user.Id.ToString(), user);
                 }
 
-               
+
             }
         }
     }

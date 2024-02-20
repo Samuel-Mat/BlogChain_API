@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using BlogChain_API.Models.User;
 using System.Web;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BlogChain_API.Controllers
 {
@@ -73,8 +74,28 @@ namespace BlogChain_API.Controllers
                     return BadRequest("A User with this username already exists (╯°□°）╯︵ ┻━┻");
                 }
 
+                string imagePath = "./Models/User/accountStandard.png";
+                using (var stream = new FileStream(imagePath, FileMode.Open))
+                {
 
-                await _usersService.CreateAsync(user);
+                    IFormFile newImage = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name))
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = "image/png"
+                    };
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+
+                        newImage.CopyTo(ms);
+                        byte[] imageInBytes = ms.ToArray();
+                        user.ProfileImage = imageInBytes;
+                    }
+                }
+
+                
+
+                    await _usersService.CreateAsync(user);
 
                 return Ok(newUser);
             }catch (Exception ex)
