@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System;
+using System.Globalization;
 using System.Security.Claims;
 using System.Web;
 
@@ -45,6 +46,9 @@ namespace BlogChain_API.Controllers
         {
             UserModel author = await _usersService.GetById();
 
+            DateTime today = DateTime.UtcNow;
+            string todayFormatted = today.ToString("HH", CultureInfo.InvariantCulture);
+
             if (author == null)
             {
                 return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
@@ -57,7 +61,7 @@ namespace BlogChain_API.Controllers
                 PostModel newPost = new PostModel();
 
                 newPost.Text = HttpUtility.HtmlEncode(postData.Text);
-                newPost.Published = DateTime.UtcNow.ToString();
+                newPost.Published = todayFormatted;
                 newPost.AuthorId = author.Id.ToString();
                 newPost.Id = BsonObjectId.GenerateNewId().ToString();
                 newPost.AuthorName = author.Username;
@@ -82,6 +86,9 @@ namespace BlogChain_API.Controllers
         {
             UserModel author = await _usersService.GetById();
 
+            DateTime today = DateTime.UtcNow;
+            string todayFormatted = today.ToString("HH", CultureInfo.InvariantCulture);
+
             if (author == null)
             {
                 return BadRequest("Something with your AuthorID is wrong (╯°□°）╯︵ ┻━┻");
@@ -105,7 +112,7 @@ namespace BlogChain_API.Controllers
                     newPost.Image = imageInBytes;
                 }
 
-                newPost.Published = DateTime.UtcNow.ToString();
+                newPost.Published = todayFormatted;
                 newPost.AuthorId = author.Id.ToString();
                 newPost.AuthorName = author.Username;
 
@@ -169,10 +176,13 @@ namespace BlogChain_API.Controllers
             UserModel author = await _usersService.GetById();
             PostModel post = await _postService.GetSingle(postId);
 
+            DateTime today = DateTime.UtcNow;
+            string todayFormatted = today.ToString("HH", CultureInfo.InvariantCulture);
+
             CommentModel comment = new CommentModel();
             comment.Text = HttpUtility.HtmlEncode(text);
             comment.AuthorId = author.Id.ToString();
-            comment.Published = DateTime.UtcNow.ToString();
+            comment.Published = todayFormatted;
             comment.Id = ObjectId.GenerateNewId().ToString();
             comment.AuthorName = author.Username;
 
