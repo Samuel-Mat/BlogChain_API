@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using BlogChain_API.Models.User;
 using System.Web;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using MongoDB.Libmongocrypt;
 
 namespace BlogChain_API.Controllers
 {
@@ -74,28 +75,12 @@ namespace BlogChain_API.Controllers
                     return BadRequest("A User with this username already exists (╯°□°）╯︵ ┻━┻");
                 }
 
-                string imagePath = "./Models/User/accountStandard.png";
-                using (var stream = new FileStream(imagePath, FileMode.Open))
-                {
+                string base64String = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAplJREFUSEu11UuollUUBuDnaKJCl4GEk7IwskiogZWJ0kQQNSeiKGkYRQMLHGQ18Ya3cuIFBC8QUWimjRwIagRORNSKKCjFEM1G4sCBiRlStt/D/uE7X/7+hwNnwcf/fftfe79rvetda/cZZusb5vP1AhiNBZiNF/Ak7uJ3/ITjZf0w/u4W6P0A5mI3nuiR5WW8V8H+59oNYDNWV+9T+BLn8Wtdm4zn8Cam1rW1yL4Bdi+ANdhU086mbfi3SxYj8BE2IHSuKr9bmr5tgFn4Bv+UlF/BD9X5UWzFa/X7CD7A9fr9Ek6XwEZiJk50QJoAY/EbHqv0fFKd4vM9prSyyNrLjbVkuxGXKn39hW8CvIH9RTFnML1By5xy0FH8UeqwuPD8AL7C40jG31aQ0HUWL5ZAl+BgG+BrLMJbRY5fNCILFaEntfiwrm/H+5WmvHfsHXyKA0jAAzIIPU+XGkyrWXQ2pQeO1QwWYhQSTKhsZhD/GaUGJ6viorIBAH+WSB8skT5UIr3ZiCo0pqmeb9UgAkhxmxYxXMMNPNINIMW+3do4rmzYUVQ1rwjgTq1JU0Ud9+y9VahLsA+3AS6WIj9VnyhhKDYJF+rzbLciv4u9QzkdK7CzqmxpN5meQ0ZBLAVdVhrn1SqA/sLhl6KSZJyC7qu0pVYZJ8+UDF7HoTZA+MvgGl/lmC5djwk9srlSOj9NFlWlOa8W0In4qw2Q7+UFYE/rwKjic2TopXtjUU+a8W1EOU1LL3zWWbjXsNtVx298cmhmS7d5P6bOnfROLEpb2UTrNq7X1QkZ3/Cc4fUdfqybM5cyhwKeTGKZwh+36ex14YSuXjUY0oXTCSQzfn6JPrdb88pMYX+uDTfkK7OHeAb3d69Lf3Cn3MfrP1DxfRmUVLOqAAAAAElFTkSuQmCC";
+                user.ProfileImage = Convert.FromBase64String(base64String);
 
-                    IFormFile newImage = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name))
-                    {
-                        Headers = new HeaderDictionary(),
-                        ContentType = "image/png"
-                    };
 
-                    using (MemoryStream ms = new MemoryStream())
-                    {
 
-                        newImage.CopyTo(ms);
-                        byte[] imageInBytes = ms.ToArray();
-                        user.ProfileImage = imageInBytes;
-                    }
-                }
-
-                
-
-                    await _usersService.CreateAsync(user);
+                await _usersService.CreateAsync(user);
 
                 return Ok(newUser);
             }catch (Exception ex)

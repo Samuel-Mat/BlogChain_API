@@ -57,7 +57,7 @@ namespace BlogChain_API.Controllers
                 PostModel newPost = new PostModel();
 
                 newPost.Text = HttpUtility.HtmlEncode(postData.Text);
-                newPost.Published = DateTime.UtcNow;
+                newPost.Published = DateTime.UtcNow.ToString();
                 newPost.AuthorId = author.Id.ToString();
                 newPost.Id = BsonObjectId.GenerateNewId().ToString();
                 newPost.AuthorName = author.Username;
@@ -105,7 +105,7 @@ namespace BlogChain_API.Controllers
                     newPost.Image = imageInBytes;
                 }
 
-                newPost.Published = DateTime.UtcNow;
+                newPost.Published = DateTime.UtcNow.ToString();
                 newPost.AuthorId = author.Id.ToString();
                 newPost.AuthorName = author.Username;
 
@@ -172,7 +172,7 @@ namespace BlogChain_API.Controllers
             CommentModel comment = new CommentModel();
             comment.Text = HttpUtility.HtmlEncode(text);
             comment.AuthorId = author.Id.ToString();
-            comment.Published = DateTime.UtcNow;
+            comment.Published = DateTime.UtcNow.ToString();
             comment.Id = ObjectId.GenerateNewId().ToString();
             comment.AuthorName = author.Username;
 
@@ -310,8 +310,10 @@ namespace BlogChain_API.Controllers
         {
             List<UserModel> users = await _usersService.GetAsync();
 
+
             foreach (UserModel user in users)
             {
+                Console.WriteLine(user);
                 PostModel deletePost = user.SavedPosts.FirstOrDefault(x => x.Id == post.Id);
                 if (deletePost != null)
                 {

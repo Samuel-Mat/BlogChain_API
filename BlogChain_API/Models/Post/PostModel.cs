@@ -15,9 +15,9 @@ namespace BlogChain_API.Models.Post
 
         public HashSet<string> LikedBy { get; set; } = new HashSet<string>();
 
-        public DateTime Published { get; set; }
+        public string Published { get; set; }
 
-        public List<CommentModel> Comments { get; set; } = new List<CommentModel>();   
+        public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
 
         public string AuthorId { get; set; }
 
