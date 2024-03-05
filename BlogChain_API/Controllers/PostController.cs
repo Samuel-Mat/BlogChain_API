@@ -32,7 +32,9 @@ namespace BlogChain_API.Controllers
         [HttpGet("GetAll")]
         public async Task<List<PostModel>> GetAll()
         {
-            return await _postService.GetAsync();
+            List<PostModel> posts = await _postService.GetAsync();
+            posts.Sort((x, y) => y.Published.CompareTo(x.Published));
+            return posts;
         }
 
         [HttpGet("GetMyPosts"), Authorize]

@@ -25,8 +25,8 @@ namespace BlogChain_API.Controllers
 
         public UserController(UsersService usersService, PasswordService passwordService, IConfiguration configuration)
         {
-             _usersService = usersService;
-             _passwordService = passwordService;
+            _usersService = usersService;
+            _passwordService = passwordService;
             _configuration = configuration;
         }
 
@@ -40,7 +40,7 @@ namespace BlogChain_API.Controllers
             UserModel user = await _usersService.GetById();
             return Ok(user);
         }
-          
+
         [HttpGet("GetProfile")]
 
         public async Task<ActionResult> GetProfile(string id)
@@ -48,7 +48,7 @@ namespace BlogChain_API.Controllers
 
             UserModel user = await _usersService.GetSingle(id);
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("No user found (╯°□°）╯︵ ┻━┻");
             }
@@ -75,7 +75,7 @@ namespace BlogChain_API.Controllers
                     return BadRequest("A User with this username already exists (╯°□°）╯︵ ┻━┻");
                 }
 
-                string base64String = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAplJREFUSEu11UuollUUBuDnaKJCl4GEk7IwskiogZWJ0kQQNSeiKGkYRQMLHGQ18Ya3cuIFBC8QUWimjRwIagRORNSKKCjFEM1G4sCBiRlStt/D/uE7X/7+hwNnwcf/fftfe79rvetda/cZZusb5vP1AhiNBZiNF/Ak7uJ3/ITjZf0w/u4W6P0A5mI3nuiR5WW8V8H+59oNYDNWV+9T+BLn8Wtdm4zn8Cam1rW1yL4Bdi+ANdhU086mbfi3SxYj8BE2IHSuKr9bmr5tgFn4Bv+UlF/BD9X5UWzFa/X7CD7A9fr9Ek6XwEZiJk50QJoAY/EbHqv0fFKd4vM9prSyyNrLjbVkuxGXKn39hW8CvIH9RTFnML1By5xy0FH8UeqwuPD8AL7C40jG31aQ0HUWL5ZAl+BgG+BrLMJbRY5fNCILFaEntfiwrm/H+5WmvHfsHXyKA0jAAzIIPU+XGkyrWXQ2pQeO1QwWYhQSTKhsZhD/GaUGJ6viorIBAH+WSB8skT5UIr3ZiCo0pqmeb9UgAkhxmxYxXMMNPNINIMW+3do4rmzYUVQ1rwjgTq1JU0Ud9+y9VahLsA+3AS6WIj9VnyhhKDYJF+rzbLciv4u9QzkdK7CzqmxpN5meQ0ZBLAVdVhrn1SqA/sLhl6KSZJyC7qu0pVYZJ8+UDF7HoTZA+MvgGl/lmC5djwk9srlSOj9NFlWlOa8W0In4qw2Q7+UFYE/rwKjic2TopXtjUU+a8W1EOU1LL3zWWbjXsNtVx298cmhmS7d5P6bOnfROLEpb2UTrNq7X1QkZ3/Cc4fUdfqybM5cyhwKeTGKZwh+36ex14YSuXjUY0oXTCSQzfn6JPrdb88pMYX+uDTfkK7OHeAb3d69Lf3Cn3MfrP1DxfRmUVLOqAAAAAElFTkSuQmCC";
+                string base64String = "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";
                 user.ProfileImage = Convert.FromBase64String(base64String);
 
 
@@ -83,7 +83,8 @@ namespace BlogChain_API.Controllers
                 await _usersService.CreateAsync(user);
 
                 return Ok(newUser);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest($"Failed to register {ex.Message} (╯°□°）╯︵ ┻━┻");
             }
@@ -130,7 +131,7 @@ namespace BlogChain_API.Controllers
                 byte[] imageInBytes = ms.ToArray();
                 user.ProfileImage = imageInBytes;
                 await _usersService.UpdateAsync(user.Id, user);
-               
+
             }
             return Ok("Uploaded Picture successfully");
         }
@@ -144,7 +145,7 @@ namespace BlogChain_API.Controllers
             {
                 return NotFound("(╯°□°）╯︵ ┻━┻");
             }
-            
+
             user.ProfileDescription = description;
             await _usersService.UpdateAsync(user.Id, user);
             return Ok("Description changed successfully");
